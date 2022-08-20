@@ -1,1 +1,5 @@
 fly.toml
+*.log
+app
+go-server
+.env
