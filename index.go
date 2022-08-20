@@ -2,35 +2,56 @@ package main
 
 import (
 	"fmt"
-	"net/http"
+	"log"
+
+	// "net/http"
 	"os"
 	"time"
+
+	"github.com/joho/godotenv"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
+type Stat struct {
+	id        int
+	slug      string
+	views     int
+	downloads int
+	createdAt time.Time
+	updatedAt time.Time
+}
+
 func main() {
-  http.HandleFunc("/", getTime)
-  http.HandleFunc("/ip", getIp)
+	loadEnv()
+	db := getDatabase()
 
-  http.ListenAndServe(getServerPort(), nil)
+	var stats []Stat
+	result := db.Find(&stats)
+	if result.Error != nil {
+		log.Fatal(result.Error)
+	}
+
+	fmt.Println(stats)
 }
 
-func getTime(res http.ResponseWriter, req *http.Request) {
-  now := time.Now()
+func getDatabase() *gorm.DB {
+	dsn := os.Getenv("DSN")
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		DisableForeignKeyConstraintWhenMigrating: true,
+	})
 
-  fmt.Fprintf(res, "The time is %s\n", now.Format("3:04:05 PM"))
+	if err != nil {
+		log.Fatalf("Error connecting to database: %s", err)
+	}
+
+	return db
 }
 
-func getIp(res http.ResponseWriter, req *http.Request) {
-  ip := req.RemoteAddr
+func loadEnv() {
+	err := godotenv.Load()
 
-  fmt.Fprintf(res, "Your IP is %s\n", ip)
-}
-
-func getServerPort() string {
-  port := os.Getenv("PORT")
-  if port == "" {
-    port = "8080"
-  }
-
-  return ":" + port
+	if err != nil {
+		log.Fatalf("Error loading .env file: %s", err)
+	}
 }
