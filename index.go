@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
 	"log"
 	"time"
 
-	// "net/http"
+	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -17,19 +17,20 @@ func main() {
 	loadEnv()
 	db := getDatabase()
 
-	ping, _ := db.DB()
-	if err := ping.Ping(); err != nil {
-		log.Fatal(err)
-	}
+	http.HandleFunc("/", GetStats(db))
 
-	fmt.Println(ping.Stats().OpenConnections)
+	http.ListenAndServe(":8080", nil)
+}
 
-	var stats []Stat
-	result := db.Find(&stats)
-	if result.Error != nil {
-		log.Fatal(result.Error)
+func GetStats(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var stats []Stat
+		db.Find(&stats)
+
+		enc := json.NewEncoder(w)
+		enc.SetIndent("", "    ")
+		enc.Encode(stats)
 	}
-	fmt.Println(stats)
 }
 
 type Stat struct {
