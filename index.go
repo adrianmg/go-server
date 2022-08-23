@@ -15,6 +15,7 @@ import (
 
 func main() {
 	loadEnv()
+
 	db := getDatabase()
 
 	http.HandleFunc("/", GetStats(db))
@@ -43,10 +44,13 @@ type Stat struct {
 }
 
 func loadEnv() {
-	err := godotenv.Load()
+	if os.Getenv("DSN") == "" {
+		err := godotenv.Load()
 
-	if err != nil {
-		log.Fatalf("Error loading .env file: %s", err)
+		if err != nil {
+			log.Fatalf("Error loading .env file: %s", err)
+			return
+		}
 	}
 }
 
