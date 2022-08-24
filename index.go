@@ -44,10 +44,12 @@ type Stat struct {
 }
 
 func loadEnv() {
-	err := godotenv.Load()
+	if os.Getenv("PRODUCTION") == "" {
+		err := godotenv.Load()
 
-	if err != nil {
-		log.Printf("Error loading .env file: %s", err)
+		if err != nil {
+			log.Fatalf("Error loading .env file: %s", err)
+		}
 	}
 }
 
