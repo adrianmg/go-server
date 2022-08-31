@@ -1,11 +1,10 @@
 # http server in go
 
-A tiny HTTP Go server for learning purposes. It's got two endpoints:
+A tiny HTTP Go server for learning purposes. It's got a single endpoint:
 
-- `/`: returns the current time in JSON format
-- `/ip`: returns the client's IP address
+- `/`: returns the current downloads in JSON format for https://adrianmato.art
 
-Demo available on [adrianmg-go-server.fly.dev](https://adrianmg-go-server.fly.dev) and .
+Demo available on [adrianmg-go-server.fly.dev](https://adrianmg-go-server.fly.dev).
 
 ## dev
 
